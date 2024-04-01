@@ -2,6 +2,7 @@ desc "Fill the database tables with some sample data"
 task({ :sample_data => :environment }) do
   puts "Sample data task running"
   if Rails.env.development?
+    User.destroy_all
     Board.destroy_all
     Post.destroy_all
   end
@@ -12,10 +13,22 @@ task({ :sample_data => :environment }) do
     end
   end
   
+  usernames = ["alice", "bob", "carol", "dave", "eve"]
+
+  usernames.each do |username|
+    user = User.new
+    user.email = "#{username}@example.com"
+    user.password = "password"
+    user.save
+  end
+
+
   5.times do
     board = Board.new
     board.name = Faker::Address.community
+    board.user_id = User.all.sample.id
     board.save
+  
 
     rand(10..50).times do
       post = Post.new
@@ -29,5 +42,6 @@ task({ :sample_data => :environment }) do
   end
 
   puts "There are now #{Board.count} rows in the boards table."
+  puts "There are now #{User.count} rows in the boards table."
   puts "There are now #{Post.count} rows in the posts table."
 end
